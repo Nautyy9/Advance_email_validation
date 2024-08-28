@@ -13,6 +13,7 @@ app.use(
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use("/mail", setup)
+// webhooks for status tracking
 app.use("/webhook", status)
 app.get("/", (req, res) => {
   res.status(200).json({ hellow: "user" })

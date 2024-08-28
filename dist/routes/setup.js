@@ -30,7 +30,6 @@ route.post("/send", async (req, res) => {
     const { senderEmail, senderName } = req.body.mailer
     const subject = req.body.subject
     const text = req.body.text
-
     // idempotency check
     for (const item of data) {
       if (item.emailId === senderEmail) {
@@ -41,7 +40,6 @@ route.post("/send", async (req, res) => {
     }
     data.add({ emailId: senderEmail, expiresIn: Date.now() + time })
     try {
-      // send mail with defined transport object
       // mail service --> fallback mechanism 1st provider
       const info = await smtpTransporter.sendMail({
         from: " 👻" + senderEmail, // sender address
@@ -52,7 +50,7 @@ route.post("/send", async (req, res) => {
         html: "<b>Hello world?</b>", // html body
       })
       console.log("Message sent: %s", info.messageId)
-      if (info) return res.status(200).json({ data: info })
+      return res.status(200).json({ data: info })
       // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
     } catch (e) {
       //below cause issue due to multiple responses hence replaced it with just log since it is not needed
@@ -69,7 +67,7 @@ route.post("/send", async (req, res) => {
           to: process.env.RECIEVER_MAIL, // list of receivers
           subject: subject, // Subject line
           text: text, // plain text body
-          html: "<b>Hello world with pop?</b>", // html body
+          html: "<b>Hello world?</b>", // html body
         })
         console.log("Message sent: %s", info.messageId)
         return res.status(200).json({ data: info })

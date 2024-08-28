@@ -8,13 +8,13 @@ const smtpTransporter = nodemailer.createTransport({
     pass: "secret.1",
   },
 })
-smtpTransporter.sendMail = () => {
-  return Promise.reject(new Error("Forced failure for testing fallback"))
-}
-
+// custom fallback to another server
+// smtpTransporter.sendMail = () => {
+//   return Promise.reject(new Error("Forced failure for testing fallback"))
+// }
 const popTransporter = nodemailer.createTransport({
   host: "localhost",
-  port: 999,
+  port: 1025,
   auth: {
     user: "project.2",
     pass: "secret.2",

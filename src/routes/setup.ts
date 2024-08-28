@@ -34,34 +34,28 @@ route.post("/send", async (req, res) => {
     const { senderEmail, senderName } = req.body.mailer
     const subject = req.body.subject
     const text = req.body.text
-    try {
-      async function main() {
-        // send mail with defined transport object
-        // idempotency check
-        for (const item of data) {
-          if (item.emailId === senderEmail) {
-            return res
-              .status(409)
-              .send(
-                "You email has been sent already . Try again after 10 seconds"
-              )
-          }
-        }
-        data.add({ emailId: senderEmail, expiresIn: Date.now() + time })
-        // mail service --> fallback mechanism 1st provider
-        const info = await smtpTransporter.sendMail({
-          from: " 👻" + senderEmail, // sender address
-          sender: senderName, // sender name
-          to: process.env.RECIEVER_MAIL, // list of receivers
-          subject: subject, // Subject line
-          text: text, // plain text body
-          html: "<b>Hello world?</b>", // html body
-        })
-        console.log("Message sent: %s", info.messageId)
-        return res.status(200).json({ data: info })
-        // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
+    // idempotency check
+    for (const item of data) {
+      if (item.emailId === senderEmail) {
+        return res
+          .status(409)
+          .send("You email has been sent already . Try again after 10 seconds")
       }
-      main()
+    }
+    data.add({ emailId: senderEmail, expiresIn: Date.now() + time })
+    try {
+      // mail service --> fallback mechanism 1st provider
+      const info = await smtpTransporter.sendMail({
+        from: " 👻" + senderEmail, // sender address
+        sender: senderName, // sender name
+        to: process.env.RECIEVER_MAIL, // list of receivers
+        subject: subject, // Subject line
+        text: text, // plain text body
+        html: "<b>Hello world?</b>", // html body
+      })
+      console.log("Message sent: %s", info.messageId)
+      return res.status(200).json({ data: info })
+      // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
     } catch (e) {
       //below cause issue due to multiple responses hence replaced it with just log since it is not needed
       //    res.status(400).json({
@@ -72,19 +66,16 @@ route.post("/send", async (req, res) => {
       )
 
       try {
-        async function main() {
-          // mail service --> fallback mechanism 2nd provider
-          const info = await popTransporter.sendMail({
-            from: " 👻" + process.env.RECIEVER_MAIL, // sender address
-            to: senderEmail, // list of receivers
-            subject: subject, // Subject line
-            text: text, // plain text body
-            html: "<b>Hello world?</b>", // html body
-          })
-          console.log("Message sent: %s", info.messageId)
-          return res.status(200).json({ data: info })
-        }
-        main()
+        // mail service --> fallback mechanism 2nd provider
+        const info = await popTransporter.sendMail({
+          from: " 👻" + senderEmail, // sender address
+          to: process.env.RECIEVER_MAIL, // list of receivers
+          subject: subject, // Subject line
+          text: text, // plain text body
+          html: "<b>Hello world?</b>", // html body
+        })
+        console.log("Message sent: %s", info.messageId)
+        return res.status(200).json({ data: info })
       } catch (e) {
         return res.status(400).json({
           data:
